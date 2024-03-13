@@ -1,29 +1,80 @@
 <html>
+
 <head>
     <title>Gruppengenerator</title>
-</head>
-<body>
-    <table width="100%">
-        <tr>
-            <td width="50%" style="vertical-align:top;">
-                <h3>Klasse</h3>
-                <textarea cols="50" rows="25" id="namen-klasse"></textarea></br>
-                <label for="group-size">Gruppengrösse</label>
-                <input type="number" id="group-size" name="group-size" value="3" />
-                <button id="shuffle-button">Shuffle</button>
-            </td>
-            <td width="50%" style="vertical-align:top;">
+    <style>
+        body{
+            font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+        .some-page-wrapper {
+            margin: 15px;
+        }
 
-                <h3>Gruppen</h3>
-                <ol id="groups-result"></ol>
-            </td>
-        </tr>
-    </table>
+        .row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            flex-basis: 100%;
+            flex: 1;
+        }
+
+        .left-column {
+            height: 90vh;
+            padding: 10px;
+        }
+
+        .right-column {
+            height: 90vh;
+            padding: 10px;
+        }
+
+        button{
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class='some-page-wrapper'>
+        <div class='row'>
+            <div class='column'>
+                <div class='left-column'>
+                    <h3>Klasse</h3>
+                    <textarea cols="50" rows="25" id="namen-klasse" autocorrect="off"></textarea>
+                </br></br>
+                    <label for="group-size">Gruppengrösse</label>
+                    <input min="2" type="number" id="group-size" name="group-size" value="3" />
+                    <button id="shuffle-button">Shuffle</button><br/>
+                    <button id="shuffle-run">Start Shuffle</button><br/>
+                    <button id="shuffle-reset">Reset</button>
+                </div>
+            </div>
+            <div class='column'>
+                <div class='right-column'>
+                    <h3>Gruppen</h3>
+                    <ol id="groups-result"></ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const klassenNamenTextArea = document.getElementById("namen-klasse");
         const shuffleButton = document.getElementById("shuffle-button");
+        const startShuffleButton = document.getElementById("shuffle-run");
+        const resetShuffleButton = document.getElementById("shuffle-reset");
         const groupSize = document.getElementById("group-size");
         const groupResult = document.getElementById("groups-result");
+
+        let run = false;
+        let ival = null;
 
         const shuffleArray = (array) => {
             for (let i = array.length - 1; i > 0; i--) {
@@ -45,6 +96,14 @@
 
         klasseName = [];
         const readKlasseNamen = function () {
+
+            if(klassenNamenTextArea.value == ""){
+                alert('Bitte Namen einfügen');
+                run = false;
+                clearInterval(ival);
+                return;
+            }
+
             klasseName = klassenNamenTextArea.value.split(/\r?\n/);
             shuffleArray(klasseName);
             if (groupSize.value <= 1) {
@@ -66,7 +125,32 @@
             groupResult.insertAdjacentHTML('beforeend', groupsResultString);
         }
 
+        resetShuffleButton.addEventListener('click', () => {
+            groupResult.innerHTML = "";
+            startShuffleButton.click();
+ 
+        });
+
         shuffleButton.addEventListener('click', readKlasseNamen);
+        startShuffleButton.addEventListener('click', () => {
+            
+            if(run){
+                startShuffleButton.innerText ='Start Shuffle';
+                run = false;
+                clearInterval(ival);
+            }
+            else {
+                startShuffleButton.innerText ='Stop Shuffle';
+                run=true;
+                ival = setInterval(() => {
+                readKlasseNamen();
+            }, 50);
+            }
+
+
+
+        });
+
     </script>
 </body>
 
